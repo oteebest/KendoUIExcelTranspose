@@ -1,0 +1,148 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<div id="grid" tabindex="0"></div>
+
+<div>
+    <button onclick="SaveToDataBase()"> Save To DataBase</button>
+</div>
+<script>
+
+      $("#grid").kendoGrid({
+        // the column fields should match the excel columns
+        columns: [
+              { field: "Id" },
+              { field: "Year" },
+              { field: "Sales" },
+              { field: "Costs" },
+              { field: "Profit" }
+        ],
+        dataSource: [
+          
+        ]
+      }).on('focusin', function(e) {
+        // Get the position of the Grid.
+        var offset = $(this).offset();
+        // Create a textarea element which will act as a clipboard.
+        var textarea = $("<textarea>");
+        // Position the textarea on top of the Grid and make it transparent.
+        textarea.css({
+          position: 'absolute',
+          opacity: 0,
+          top: offset.top,
+          left: offset.left,
+          border: 'none',
+          width: $(this).width(),
+          height: $(this).height()
+        })
+        .appendTo('body')
+        .on('paste', function() {
+          // Handle the paste event.
+          setTimeout(function() {
+            // The pasted content.
+            var value = $.trim(textarea.val());
+            // Get instance to the Grid.
+            var grid = $("#grid").data("kendoGrid");
+            // Get the pasted rows - split the text by new line.
+            var rows = value.split('\n');
+
+            var data = [];
+
+            for (var i = 0; i < rows.length; i++) {
+              var cells = rows[i].split('\t');
+              data.push({
+                  Id: cells[0],
+                  Year: cells[1],
+                  Sales: cells[2],
+                  Costs: cells[3],
+                  Profit: cells[4]
+              });
+            };
+            grid.dataSource.data(data);
+          });
+        }).on('focusout', function() {
+          // Remove the textarea when it loses focus.
+          $(this).remove();
+        });
+        // Focus the textarea.
+        setTimeout(function() {
+          textarea.focus();
+        });
+      });
+
+    function SaveToDataBase() {
+
+        var gridItems = $("#grid").data("kendoGrid").dataSource.data();
+
+        var noOfItems = parseInt( gridItems.length);
+
+        var arrayOfItems = [];
+
+        for (var j = 0; j < noOfItems; j++) {
+
+            var Id = parseInt(gridItems[j].Id);
+            var year = parseInt(gridItems[j].Year);
+            var sales = parseFloat(gridItems[j].Sales);
+            var costs = parseFloat(gridItems[j].Costs);
+            var profit = parseFloat(gridItems[j].Profit);
+
+            if (typeof(year) != "number") {
+
+                alert(`Enter a valid year for row ${(j + 1)}`);
+            }
+
+            if (typeof (sales) != "number") {
+
+                alert(`Enter valid sales for row ${(j + 1)}`);
+            }
+
+            if (typeof (costs) != "number") {
+
+                alert(`Enter valid costs for row ${(j + 1)}`);
+            }
+
+            if (typeof (profit) != "number") {
+
+                alert(`Enter valid profit for row ${(j + 1)}`);
+            }
+
+
+            var item = {Id,year,sales,costs,profit};
+                        
+            arrayOfItems.push(item)
+
+        }
+
+        console.log(arrayOfItems);
+
+        $.post({
+            url: "/import/Financials",
+            data: JSON.stringify(arrayOfItems),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                //email code confirmation
+
+               // ShowMessage(`Kindly go to your email at ${$("#reg-email").val()} 
+               //click on the link in your email to activate your account`, 'ResendConfirmationMessage', 'success');
+
+               // RemoveSpinnerToButton(btn);
+
+                console.log("Success: ", data);
+
+           }
+        }).fail(function (data) {
+
+            console.log("Failed: ", data);
+
+            //RemoveSpinnerToButton(btn);
+
+        });
+
+
+    }
+
+</script>
+
+
