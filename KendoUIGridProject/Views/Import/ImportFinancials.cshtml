@@ -13,7 +13,7 @@
       $("#grid").kendoGrid({
         // the column fields should match the excel columns
         columns: [
-              { field: "Id" },
+           
               { field: "Year" },
               { field: "Sales" },
               { field: "Costs" },
@@ -50,16 +50,52 @@
 
             var data = [];
 
-            for (var i = 0; i < rows.length; i++) {
-              var cells = rows[i].split('\t');
-              data.push({
-                  Id: cells[0],
-                  Year: cells[1],
-                  Sales: cells[2],
-                  Costs: cells[3],
-                  Profit: cells[4]
-              });
-            };
+              var noOfRows = rows.length;
+              var noOfColumns = rows[0].split('\t').length;
+
+              for (var i = 0; i < noOfColumns; i++) {
+
+                  var rowItem = {};
+
+                  for (var x = 0; x < noOfRows; x++) {
+
+                      if (x === 0) {
+                          rowItem.Year = rows[x].split('\t')[i];
+                         
+                      }
+
+                      if (x === 1) {
+                          rowItem.Sales = rows[x].split('\t')[i];
+                      }
+
+                      if (x === 2) {
+                          rowItem.Costs = rows[x].split('\t')[i];
+                      }
+                      
+                      if (x === 3) {
+                          rowItem.Profit = rows[x].split('\t')[i];
+                      }
+                     
+                  }
+
+                  data.push(rowItem);
+
+              }
+
+              console.log(data);
+
+            //for (var i = 0; i < rows.length; i++) {
+            //  var cells = rows[i].split('\t');
+            //  data.push({                 
+            //      Year: cells[0],
+            //      Sales: cells[1],
+            //      Costs: cells[2],
+            //      Profit: cells[3]
+            //  });
+            //  };
+
+            //  TransposeData(data);
+
             grid.dataSource.data(data);
           });
         }).on('focusout', function() {
@@ -71,6 +107,70 @@
           textarea.focus();
         });
       });
+
+        var rawData,
+            data = [],
+            model = {},
+            length,
+            dataLength,
+            propertiesLength;
+
+    function TransposeData(rawData) {
+
+         //   var rawData = $("#grid").data("kendoGrid").dataSource.data();
+
+            console.log("Raw data: ", rawData);
+
+            dataLength = rawData.length;
+
+            propertiesLength = Object.keys(rawData[0]).length;
+
+            for (var i = 0; i < propertiesLength; i += 1) {
+                data[i] = {};
+                for (var j = 0; j < dataLength; j += 1) {
+                    var currentItem = rawData[j]
+                    var property = Object.keys(currentItem)[i];
+                    if (j === 0) {
+                        data[i]["Property"] = property;
+                    }
+                    data[i][currentItem.FirstName] = currentItem[property]
+                }
+            }
+
+
+            console.log("Data: ", data);
+
+            //$("#grid").kendoGrid({
+            //    dataSource: {
+            //        data: data,
+            //        pageSize: 20,
+            //    },
+            //    scrollable: true
+            //});
+        }
+        
+        function GetGridIitems() {
+
+            var gridItems = $("#grid").data("kendoGrid").dataSource.data();
+
+            var noOfItems = parseInt(gridItems.length);
+
+            var arrayOfItems = [];
+
+            for (var j = 0; j < noOfItems; j++) {
+
+                var Id = parseInt(gridItems[j].Id);
+                var year = parseInt(gridItems[j].Year);
+                var sales = parseFloat(gridItems[j].Sales);
+                var costs = parseFloat(gridItems[j].Costs);
+                var profit = parseFloat(gridItems[j].Profit);
+
+                var item = { Id, year, sales, costs, profit };
+
+                arrayOfItems.push(item)
+
+            }
+        }
 
     function SaveToDataBase() {
 
