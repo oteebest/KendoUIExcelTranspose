@@ -3,6 +3,8 @@
     ViewBag.Title = "Index";
 }
 
+<span id="notification"></span>
+
 <div id="grid" tabindex="0"></div>
 
 <div style="text-align:center;padding-top:10px">
@@ -10,62 +12,91 @@
 </div>
 <script>
 
-      $("#grid").kendoGrid({
+
+    $("#grid").kendoGrid({
         // the column fields should match the excel columns
         columns: [
-           
-              { field: "Label" },
-              { field: "Col1" },
-              { field: "Col2" },
-              { field: "Col3" },
-              { field: "Col4" },
-              { field: "Col5" },
-              { field: "Col6" },
-              { field: "Col7" },
-              { field: "Col8" }
-        ],
+
+            { field: "Label" },
+            { field: "Col1", template: "#= converter(data,1)#" },
+            { field: "Col2", template: "#= converter(data,2)#"  },
+            { field: "Col3", template: "#= converter(data,3)#"  },
+            { field: "Col4", template: "#= converter(data,4)#"  },
+            { field: "Col5", template: "#= converter(data,5)#" },
+            { field: "Col6", template: "#= converter(data,6)#" },
+            { field: "Col7", template: "#= converter(data,7)#"  },
+            { field: "Col8", template: "#= converter(data,8)#"  }
+        ],   
         dataSource: [
-          
+
         ]
-      }).on('focusin', function(e) {
+    }).on('focusin', function (e) {
         // Get the position of the Grid.
         var offset = $(this).offset();
         // Create a textarea element which will act as a clipboard.
         var textarea = $("<textarea>");
         // Position the textarea on top of the Grid and make it transparent.
         textarea.css({
-          position: 'absolute',
-          opacity: 0,
-          top: offset.top,
-          left: offset.left,
-          border: 'none',
-          width: $(this).width(),
-          height: $(this).height()
+            position: 'absolute',
+            opacity: 0,
+            top: offset.top,
+            left: offset.left,
+            border: 'none',
+            width: $(this).width(),
+            height: $(this).height()
         })
-        .appendTo('body')
-        .on('paste', function() {
-          // Handle the paste event.
-          setTimeout(function() {
-            // The pasted content.
-            var value = $.trim(textarea.val());
-            // Get instance to the Grid.
-            var grid = $("#grid").data("kendoGrid");
+            .appendTo('body')
+            .on('paste', function () {
+                // Handle the paste event.
+                setTimeout(function () {
+                    // The pasted content.
+                    var value = $.trim(textarea.val());
+                    // Get instance to the Grid.
+                    var grid = $("#grid").data("kendoGrid");
 
-            var data =  AddColumnToData(value);
+                    var data = AddColumnToData(value);
 
-              console.log(data);
 
-            grid.dataSource.data(data);
-          });
-        }).on('focusout', function() {
-          // Remove the textarea when it loses focus.
-          $(this).remove();
-        });
+                    grid.dataSource.data(data);
+                });
+            }).on('focusout', function () {
+                // Remove the textarea when it loses focus.
+                $(this).remove();
+            });
         // Focus the textarea.
-        setTimeout(function() {
-          textarea.focus();
+        setTimeout(function () {
+            textarea.focus();
         });
-      });
+    });
+
+    function converter(data,columnNo) {
+        if (data.Label === 'Sales' || data.Label === 'Cost' || data.Label === 'Profit') {
+
+            var returnValue = TryParseFloat(data[`Col${columnNo}`], null);
+
+            if (returnValue) {
+                return kendo.toString(returnValue, "###,###.##");
+            }
+            else {
+                return '';
+            }
+            
+        }
+        return kendo.toString(data[`Col${columnNo}`])
+    }
+
+    function TryParseFloat(str, defaultValue) {
+        var retValue = defaultValue;
+        if (str) {
+            console.log(str);
+            if (str.length > 0) {
+                if (!isNaN(str)) {
+                    retValue = parseFloat(str);
+                }
+            }
+        }
+        return retValue;
+    }
 
 
     function AddColumnToData(pastedContent) {
@@ -107,61 +138,29 @@
 
                 rowItem.Label = "Profit";
             }
-            
-           
+
+
             for (var i = 0; i < noOfColumns; i++) {
 
-                rowItem[`Col${i+1}`] = rows[j].split('\t')[i];
+                rowItem[`Col${i + 1}`] = rows[j].split('\t')[i];
 
-                //if (j === 0) {
 
-                //    rowItem[`Year${i}`] = rows[j].split('\t')[i];
-                //}
-
-                //if (j === 1) {
-
-                //    rowItem[`Balance${i}`] = rows[j].split('\t')[i];
-                //}
-
-                //if (j === 2) {
-
-                //    rowItem[`Sales${i}`] = rows[j].split('\t')[i];
-                //}
-
-                //if (j === 3) {
-
-                //    rowItem[`Cost${i}`] = rows[j].split('\t')[i];
-                //}
-
-                //if (j === 4) {
-
-                //    rowItem[`Income${i}`] = rows[j].split('\t')[i];
-                //}
-
-                //if (j === 5) {
-
-                //    rowItem[`Profit${i}`] = rows[j].split('\t')[i];
-                //}
-
-             
-               
             }
 
             data.push(rowItem);
         }
 
         return data;
-       
+
     }
 
-   
-        
-      
+
+
     function SaveToDataBase() {
 
         var gridItems = $("#grid").data("kendoGrid").dataSource.data();
 
-        var noOfItems = parseInt( gridItems.length);
+        var noOfItems = parseInt(gridItems.length);
 
         var arrayOfItems = [];
 
@@ -176,7 +175,7 @@
             var Col6 = parseFloat(gridItems[j].Col6);
             var Col7 = parseFloat(gridItems[j].Col7);
             var Col8 = parseFloat(gridItems[j].Col8);
-         
+
             if (typeof (Col1) != "number") {
 
                 alert(`Enter a valid number for row ${(j + 1)}, column 1`);
@@ -217,30 +216,29 @@
                 alert(`Enter a valid number for row ${(j + 1)}, column 8`);
             }
 
-            var item = { Label, Col1, Col2, Col3, Col4, Col5, Col6, Col7, Col8};
-                        
+            var item = { Label, Col1, Col2, Col3, Col4, Col5, Col6, Col7, Col8 };
+
             arrayOfItems.push(item)
 
         }
 
-        console.log(arrayOfItems);
 
         $.post({
             url: "/import/SaveFinancials",
             data: JSON.stringify(arrayOfItems),
             contentType: "application/json; charset=utf-8",
             success: function (data) {
-                //email code confirmation
 
-               // ShowMessage(`Kindly go to your email at ${$("#reg-email").val()} 
-               //click on the link in your email to activate your account`, 'ResendConfirmationMessage', 'success');
+                $("#grid").data('kendoGrid').dataSource.data([]);
 
-               // RemoveSpinnerToButton(btn);
+                kendo.alert(data.message);
 
-                console.log("Success: ", data);
-
-           }
+               
+            }
         }).fail(function (data) {
+
+
+            kendo.alert('An error occurred');
 
             console.log("Failed: ", data);
 

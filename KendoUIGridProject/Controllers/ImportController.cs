@@ -42,8 +42,14 @@ namespace KendoUIGridProject.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult> SaveFinancials(List<ExcelRequestModel> items)
+        public async Task<ActionResult> SaveFinancials(List<ExcelRequestModel> items )
         {
+            if(items == null)
+            {
+                return Json(new { success = false, message = "You do not have entries to save" });
+
+            }
+
             string[] lables = new[] { "Year", "Sales", "Cost", "Profit" };
 
             items = items.Where(u => lables.Contains(u.Label)).ToList();
