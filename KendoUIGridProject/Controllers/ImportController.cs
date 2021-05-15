@@ -15,30 +15,8 @@ namespace KendoUIGridProject.Controllers
         // GET: Import
         public ActionResult Index()
         {
-            return View("ImportFinancials2");
+            return View("ImportFinancials");
         }
-
-
-        [HttpPost]
-        public async Task<ActionResult> Data()
-        {
-            Request.InputStream.Seek(0, SeekOrigin.Begin);
-            string jsonData = new StreamReader(Request.InputStream).ReadToEnd();
-
-
-            return Json(new { success = true, message = "Saved successfully" });
-
-        }
-
-
-        [HttpPost]
-        public async Task<ActionResult> Financials(List<Financials> model)
-        {
-
-            return Json(new { success = true, message = "Saved successfully" });
-
-        }
-
 
 
         [HttpPost]

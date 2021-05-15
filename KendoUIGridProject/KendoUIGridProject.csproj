@@ -915,7 +915,6 @@
     <Content Include="Scripts\kendo\2021.1.330\kendo.window.min.js.map" />
     <Content Include="Scripts\kendo\2021.1.330\kendo.wizard.min.js.map" />
     <Content Include="Views\Import\ImportFinancials.cshtml" />
-    <Content Include="Views\Import\ImportFinancials2.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Site.css" />
